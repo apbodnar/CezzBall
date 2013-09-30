@@ -19,6 +19,16 @@ function Ball(){
 	this.handleCollision = function(){
 	
 	}
+	this.draw = function(){
+		console.log(this.px +" "+ this.py);
+		//ctx.save();
+			ctx.beginPath();
+			ctx.arc(Math.round(this.px), Math.round(this.py), this.radius, 0, 2 * Math.PI, false);
+			ctx.fillStyle = 'red';
+			ctx.fill();
+			ctx.stroke();
+		//ctx.restore();
+	}
 } 
 
 function Wall(mx, my){ 
@@ -26,7 +36,7 @@ function Wall(mx, my){
 	this.py0 = my;
 	this.px1 = mx;
 	this.py1 = my;
-} 
+}
 
 function Sector(){ 
 	this.filled = false;
@@ -47,11 +57,14 @@ function SectorList(){
 }
 
 function initField(){
-	ballList.push(new Ball);
+	ballList.push(new Ball());
 }
 
 function drawField(){
-		
+	console.log(ballList.length);
+	for(var i=0; i< ballList.length; i++){
+		ballList[i].draw();
+	}
 }
 
 function getMousePos(canvas, evt) {
@@ -68,10 +81,9 @@ function animate(){
 
 function startGame(){
 	initField();
-
-	while(true){
+	//while(true){
 		animate()
 		drawField();
-	}
+	//}
 }
 
