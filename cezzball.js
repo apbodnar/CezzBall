@@ -170,6 +170,7 @@ function lineCollidesWithWall(segment) {
 		// console.log("x + len: " + (segment.x + length) + " x - len: " + (segment - x) + " y + len: " + (segment) + " y: " + 2*segment.y);
 		// If line is outside canvas, stop it
 		temp = 0;
+		/*
 		switch (segment.drawingDirection) {
 			case "up":
 				temp = segment.basey - segment.length;
@@ -186,6 +187,42 @@ function lineCollidesWithWall(segment) {
 			case "left":
 				temp = segment.basex - segment.length;
 				return temp < 0;
+				break;
+		} 
+		if((Math.abs(this.px - wall.px0) <= this.radius && Math.abs(this.px - wall.px1) <= this.radius) &&
+			this.py < Math.max(wall.py0,wall.py1) && this.py > Math.min(wall.py0,wall.py1)){
+		}
+		*/
+		var allowance = 2;
+		var wall = wallList[i];
+		switch (segment.drawingDirection) {
+			case "up":
+				temp = segment.basey - segment.length;
+				if(Math.abs(temp - wallList[i].py0) <= allowance && (Math.abs(temp - wallList[i].py1) <= allowance) &&
+					segment.basex < Math.max(wall.px0,wall.px1) && segment.basex > Math.min(wall.px0,wall.px1)){
+					return true;
+				}
+				break;
+			case "right":
+				temp = segment.basex + segment.length;
+				if(Math.abs(temp - wallList[i].px0) <= allowance && (Math.abs(temp - wallList[i].px1) <= allowance) &&
+					segment.basey < Math.max(wall.py0,wall.py1) && segment.basey > Math.min(wall.py0,wall.py1)){
+					return true;
+				}
+				break;
+			case "down":
+				temp = segment.basey + segment.length;
+				if(Math.abs(temp - wallList[i].py0) <= allowance && (Math.abs(temp - wallList[i].py1) <= allowance) &&
+					segment.basex < Math.max(wall.px0,wall.px1) && segment.basex > Math.min(wall.px0,wall.px1)){
+					return true;
+				}
+				break;
+			case "left":
+				temp = segment.basex - segment.length;
+				if(Math.abs(temp - wallList[i].px0) <= allowance && (Math.abs(temp - wallList[i].px1) <= allowance) &&
+					segment.basey < Math.max(wall.py0,wall.py1) && segment.basey > Math.min(wall.py0,wall.py1)){
+					return true;
+				}
 				break;
 		}
 	}
@@ -343,8 +380,6 @@ function getMousePos(canvas, evt) {
 
 function startGame(){
 	initField();
-	console.log(canvas.height)
-	console.log(sectorList[0])
 	animate();
 }
 
