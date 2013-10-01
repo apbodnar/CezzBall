@@ -7,8 +7,9 @@ canvas.height = 500;
 var level = 1;
 var ballList = [];
 var sectorList = [];
+var linelist = [];
 var start = new Date().getTime();
-var elapsed;
+var lastTime = 0;
 
 window.requestAnimFrame = (function(callback) {
 	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -19,18 +20,36 @@ window.requestAnimFrame = (function(callback) {
 
 function animate() {
 	//var time = (new Date()).getTime() - startTime;
-	var dt = 1.0;
-	
+
+	var dt = 0.0;
+	var timeNow = new Date().getTime();
+	if (lastTime != 0){
+		dt = (timeNow - lastTime)/5.0;
+	}
+	lastTime = timeNow;
+
 	for(var i=0; i< ballList.length; i++){
 		ballList[i].px += ballList[i].vx * dt;
 		ballList[i].py += ballList[i].vy * dt;
-		ballList[i].checkCollision();
+		ballList[i].checkCollision(dt);
 	}
+	
 	drawField();
+	for(var i=0; i < linelist.length; i++) {
+		linelist[i].draw();
+	}
 	
 	requestAnimFrame(function(){
 		animate();
 	});
+}
+
+function drawField(){
+	ctx.fillStyle = "white"
+	ctx.fillRect(0,0,canvas.width,canvas.height);
+	for(var i=0; i< ballList.length; i++){
+		ballList[i].draw();
+	}
 }
 
 function Ball(){
@@ -40,16 +59,16 @@ function Ball(){
 	this.vx = Math.random() < 0.5 ? -1.0 : 1.0;
 	this.vy = Math.random() < 0.5 ? -1.0 : 1.0;
 	
-	this.checkCollision = function(){
+	this.checkCollision = function(dt){
 		for(var i=0; i< sectorList.length; i++){
 			for(var j=0; j< sectorList[i].wallList.length; j++){
 				if(Math.abs(this.px - sectorList[i].wallList[j].px0) <= this.radius || Math.abs(this.px - sectorList[i].wallList[j].px1) <= this.radius){
 					this.vx*=-1.0;//return [-1,1];
-					this.px += this.vx*1.0;
+					this.px += this.vx*dt;
 				}
 				else if(Math.abs(this.py - sectorList[i].wallList[j].py0) <= this.radius || Math.abs(this.py - sectorList[i].wallList[j].py1) <= this.radius){
 					this.vy*=-1.0;//return [1,-1];
-					this.py += this.vy*1.0;
+					this.py += this.vy*dt;
 				}
 			}
 		}
@@ -66,17 +85,67 @@ function Ball(){
 	}
 } 
 
+function Line(x, y, orientation) {
+	this.length = 0;
+	this.x = x;
+	this.y = y;
+	this.speed = 2;
+	// 0 = horizontal, 1 = vertical
+	this.orientation = orientation;
+	this.draw = function() {
+		ctx.strokeStyle = 'black';
+		if (this.orientation == 0) {
+			if (this.length >= canvas.width) {
+				// Make wall
+				// Remove line
+				return;
+			}
+			this.length = this.length + (this.speed);
+			ctx.moveTo(this.x, this.y);
+			ctx.lineTo(this.x + this.length / 2, this.y);
+			ctx.stroke();
+			ctx.moveTo(this.x, this.y);
+			ctx.lineTo(this.x - this.length / 2, this.y);
+			ctx.stroke();
+		}
+		else if (this.orientation == 1) {
+			if (this.length >= canvas.width) {
+				// Make wall
+				// Remove line
+				return;
+			}
+			this.length = this.length + (this.speed);
+			ctx.moveTo(this.x, this.y);
+			ctx.lineTo(this.x, this.y + this.length / 2);
+			ctx.stroke();
+			ctx.moveTo(this.x, this.y);
+			ctx.lineTo(this.x, this.y - this.length / 2);
+			ctx.stroke();
+		}
+	}
+}
+
 function drawHorizontalLine(event) {
-	alert("Draw horiz");
+	var mousePos = getMousePos(canvas, event);
+	linelist.push(new Line(mousePos.x, mousePos.y, 0));
+	console.log("Pushing: " + mousePos.x + " " + mousePos.y);
 }
 
 function drawVerticalLine(event) {
-	alert("Draw vert");
+	var mousePos = getMousePos(canvas, event);
+	linelist.push(new Line(mousePos.x, mousePos.y, 1));
+	console.log("Pushing: " + mousePos.x + " " + mousePos.y);
 }
 
 canvas.onmousedown=function(event){
-	if (event.button == 0) drawHorizontalLine(event);
-	else if (event.button == 2) drawVerticalLine(event);
+	if (event.button == 0) {
+		drawHorizontalLine(event);
+		return true;
+	}
+	else if (event.button == 2) {
+		drawVerticalLine(event);
+		return false;
+	}
 };
 
 function Wall(px0,py0,px1,py1){ 
@@ -118,14 +187,6 @@ function initField(){
 	initBoundary()
 }
 
-function drawField(){
-	ctx.fillStyle = "white"
-	ctx.fillRect(0,0,canvas.width,canvas.height);
-	for(var i=0; i< ballList.length; i++){
-		ballList[i].draw();
-	}
-}
-
 function getMousePos(canvas, evt) {
 	var rect = canvas.getBoundingClientRect();
 	return {
@@ -133,14 +194,9 @@ function getMousePos(canvas, evt) {
 		y: evt.clientY - rect.top
 	};
 }
-/*
-function animate(){
-	var dt = 1.0;//new Date().getTime();
 
-}
-*/
 function startGame(){
 	initField();
-	animate()
+	animate();
 }
 
