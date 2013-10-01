@@ -6,6 +6,8 @@ canvas.height = 500;
 
 var level = 1;
 var ballList = [];
+var start = new Date().getTime();
+var elapsed;
 
 function Ball(){
 	this.radius = 8;
@@ -13,12 +15,15 @@ function Ball(){
 	this.py = canvas.height * Math.random();
 	this.vx = Math.random() < 0.5 ? -1.0 : 1.0;
 	this.vy = Math.random() < 0.5 ? -1.0 : 1.0;
+	
 	this.checkCollision = function(){
 	
 	}
+	
 	this.handleCollision = function(){
 	
 	}
+	
 	this.draw = function(){
 		console.log(this.px +" "+ this.py);
 		//ctx.save();
@@ -31,11 +36,11 @@ function Ball(){
 	}
 } 
 
-function Wall(mx, my){ 
-	this.px0 = mx;
-	this.py0 = my;
-	this.px1 = mx;
-	this.py1 = my;
+function Wall(px0,py0,px1,py1){ 
+	this.px0 = px0;
+	this.py0 = px0;
+	this.px1 = px1;
+	this.py1 = py1;
 }
 
 function Sector(){ 
@@ -44,6 +49,7 @@ function Sector(){
 	this.valid() = function(){
 		return false;
 	}
+	
 	this.containsBall = function(ball){
 		return false;
 	}
@@ -58,9 +64,12 @@ function SectorList(){
 
 function initField(){
 	ballList.push(new Ball());
+	
 }
 
 function drawField(){
+	ctx.fillStyle = "white"
+	ctx.fillRect(0,0,canvas.width,canvas.height);
 	console.log(ballList.length);
 	for(var i=0; i< ballList.length; i++){
 		ballList[i].draw();
@@ -76,7 +85,10 @@ function getMousePos(canvas, evt) {
 }
 
 function animate(){
-	
+	var dt = new Date().getTime();
+	for(var i=0; i< ballList.length; i++){
+		ballList[i].draw();
+	}
 }
 
 function startGame(){
