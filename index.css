@@ -47,12 +47,78 @@ p, h3, h4, label {
 	font-family: Helvetica, sans-serif;
 }
 
+h3 {
+	text-align: center;
+}
+
 h4 {
 	color: #09FF00;
 }
 
-h3 {
-	text-align: center;
+h3#counterClock {
+	animation-name: counterClockwiseShadow;
+	animation-duration: 3s;
+	animation-timing-function: linear;
+	/*animation-direction: alternate;*/
+	animation-iteration-count: infinite;
+	animation-play-state: running;
+
+	/* Safari and Chrome*/
+	-webkit-animation-name: counterClockwiseShadow;
+	-webkit-animation-duration: 3s;
+	-webkit-animation-timing-function: linear;
+	/*-webkit-animation-direction: alternate;*/
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-play-state: running;
+}
+
+h3#clock {
+	animation-name: clockwiseShadow;
+	animation-duration: 3s;
+	animation-timing-function: linear;
+	/*animation-direction: alternate;*/
+	animation-iteration-count: infinite;
+	animation-play-state: running;
+
+	/* Safari and Chrome*/
+	-webkit-animation-name: clockwiseShadow;
+	-webkit-animation-duration: 3s;
+	-webkit-animation-timing-function: linear;
+	/*-webkit-animation-direction: alternate;*/
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-play-state: running;
+}
+
+@keyframes clockwiseShadow {
+	0%		{text-shadow: 5px 5px red;}
+	25%		{text-shadow: -5px 5px red;}
+	50%		{text-shadow: -5px -5px red;}
+	75%		{text-shadow: 5px -5px red;}
+	100%	{text-shadow: 5px 5px red;}
+}
+
+@-webkit-keyframes clockwiseShadow {
+	0%		{text-shadow: 5px 5px red;}
+	25%		{text-shadow: -5px 5px red;}
+	50%		{text-shadow: -5px -5px red;}
+	75%		{text-shadow: 5px -5px red;}
+	100%	{text-shadow: 5px 5px red;}
+}
+
+@keyframes counterClockwiseShadow {
+	0%		{text-shadow: -5px 5px red;}
+	25%		{text-shadow: 5px 5px red;}
+	50%		{text-shadow: 5px -5px red;}
+	75%		{text-shadow: -5px -5px red;}
+	100%	{text-shadow: -5px 5px red;}
+}
+
+@-webkit-keyframes counterClockwiseShadow {
+	0%		{text-shadow: -5px 5px red;}
+	25%		{text-shadow: 5px 5px red;}
+	50%		{text-shadow: 5px -5px red;}
+	75%		{text-shadow: -5px -5px red;}
+	100%	{text-shadow: -5px 5px red;}
 }
 
 div#canvas {
