@@ -6,6 +6,7 @@ canvas.height = 500;
 
 var level = 1;
 var ballList = [];
+var wallList = [];
 var sectorList = [];
 var linelist = [];
 var start = new Date().getTime();
@@ -242,6 +243,12 @@ function initBoundary(){
 	sectorList[0].wallList.push(new Wall(0,0,0,canvas.height));
 	sectorList[0].wallList.push(new Wall(canvas.width,canvas.height,0,canvas.height));
 	sectorList[0].wallList.push(new Wall(canvas.width,canvas.height,canvas.width,0));
+
+	// Push the boundaries onto the wallList
+	wallList.push(new Wall(0,0,canvas.width,0));
+	wallList.push(new Wall(0,0,0,canvas.height));
+	wallList.push(new Wall(canvas.width,canvas.height,0,canvas.height));
+	wallList.push(new Wall(canvas.width,canvas.height,canvas.width,0));
 }
 
 function initField(){
