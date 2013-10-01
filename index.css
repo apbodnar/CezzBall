@@ -1,6 +1,10 @@
 body {
-	background-color: #000;
+/*	background-color: #000;
 	width: 700px;
+	margin: auto;*/
+}
+div.centerit {
+	width: 100px;
 	margin: auto;
 }
 
