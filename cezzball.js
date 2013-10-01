@@ -6,6 +6,7 @@ canvas.height = 500;
 
 var level = 1;
 var ballList = [];
+var sectorList = [];
 var start = new Date().getTime();
 var elapsed;
 
@@ -17,22 +18,35 @@ function Ball(){
 	this.vy = Math.random() < 0.5 ? -1.0 : 1.0;
 	
 	this.checkCollision = function(){
-	
+		for(var i=0; i< sectorList.length; i++){
+			for(var j=0; j< sectorList[i].wallList.length; j++){
+				if(Math.abs(this.px - sectorList[i].wallList[j].px0) <= this.radius || Math.abs(this.px - sectorList[i].wallList[j].px1) <= this.radius){
+					return [-1,1];
+				}
+				else if(Math.abs(this.py - sectorList[i].wallList[j].py0) <= this.radius || Math.abs(this.py - sectorList[i].wallList[j].py1) <= this.radius){
+					return [1,-1];
+				}
+				else{
+					return [1,1];
+				}
+			}
+		}
 	}
 	
 	this.handleCollision = function(){
-	
+		var vector = this.checkCollision();
+		this.vx = this.vx * vector[0];
+		this.vy = this.vy * vector[1];
 	}
 	
 	this.draw = function(){
-		console.log(this.px +" "+ this.py);
-		//ctx.save();
+		ctx.save();
 			ctx.beginPath();
-			ctx.arc(Math.round(this.px), Math.round(this.py), this.radius, 0, 2 * Math.PI, false);
+			ctx.arc((this.px), (this.py), this.radius, 0, 2 * Math.PI, false);
 			ctx.fillStyle = 'red';
 			ctx.fill();
 			ctx.stroke();
-		//ctx.restore();
+		ctx.restore();
 	}
 } 
 
@@ -46,7 +60,7 @@ function Wall(px0,py0,px1,py1){
 function Sector(){ 
 	this.filled = false;
 	this.wallList = [];
-	this.valid() = function(){
+	this.valid = function(){
 		return false;
 	}
 	
@@ -62,15 +76,22 @@ function SectorList(){
 	}
 }
 
+function initBoundary(){
+	sectorList.push(new Sector());
+	sectorList[0].wallList.push(new Wall(0,0,canvas.width,0));
+	sectorList[0].wallList.push(new Wall(0,0,0,canvas.height));
+	sectorList[0].wallList.push(new Wall(canvas.width,canvas.height,0,canvas.height));
+	sectorList[0].wallList.push(new Wall(canvas.width,canvas.height,canvas.width,0));
+}
+
 function initField(){
 	ballList.push(new Ball());
-	
+	initBoundary()
 }
 
 function drawField(){
 	ctx.fillStyle = "white"
 	ctx.fillRect(0,0,canvas.width,canvas.height);
-	console.log(ballList.length);
 	for(var i=0; i< ballList.length; i++){
 		ballList[i].draw();
 	}
@@ -85,9 +106,12 @@ function getMousePos(canvas, evt) {
 }
 
 function animate(){
-	var dt = new Date().getTime();
+	var dt = 1.0;//new Date().getTime();
 	for(var i=0; i< ballList.length; i++){
+		ballList[i].px += ballList[i].vx * dt;
+		ballList[i].py += ballList[i].vy * dt;
 		ballList[i].draw();
+		ballList[i].handleCollision;
 	}
 }
 
