@@ -6,4 +6,49 @@ body {
 
 canvas {
 	background-color: #FFF;
+	margin: 25px;
+	width: 700px;
+	height: 500px;
+
+}
+
+h2 {
+	font-size: 3em;
+	text-align: center;
+}
+
+div#canvas {
+	background-color: #666;
+	width: 750px;
+	height: 550px;
+	margin-left: auto;
+	margin-right: auto;
+	border-radius: 15px;
+
+}
+
+span#Cezz {
+	animation-name: cezzanimation;
+	animation-duration: 2s;
+	animation-timing-function: linear;
+	animation-direction: alternate;
+	animation-iteration-count: infinite;
+	animation-play-state: running;
+
+	/* Safari and Chrome*/
+	-webkit-animation-name: cezzanimation;
+	-webkit-animation-duration: 2s;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-direction: alternate;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-play-state: running;
+}
+
+span#Ball {
+
+}
+
+@keyframes swapcolors {
+	0%		{color: red;}
+	100%	{color: white;}
 }
