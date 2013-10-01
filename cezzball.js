@@ -66,28 +66,27 @@ function Ball(){
 	this.vx = Math.random() < 0.5 ? -1.0 : 1.0;
 	this.vy = Math.random() < 0.5 ? -1.0 : 1.0;
 	
+	this.handleCollision = function(dt, wall){
+		if((Math.abs(this.px - wall.px0) <= this.radius && Math.abs(this.px - wall.px1) <= this.radius) &&
+			this.py < Math.max(wall.py0,wall.py1) && this.py > Math.min(wall.py0,wall.py1)){
+			this.vx*=-1.0;//return [-1,1];
+			this.px += this.vx*dt;
+		}
+		else if((Math.abs(this.py - wall.py0) <= this.radius && Math.abs(this.py - wall.py1) <= this.radius) &&
+			this.px < Math.max(wall.px0,wall.px1) && this.px > Math.min(wall.px0,wall.px1)){
+			this.vy*=-1.0;//return [1,-1];
+			this.py += this.vy*dt;
+		}
+	}
+	
 	this.checkCollision = function(dt){
 		for(var i=0; i< sectorList.length; i++){
 			for(var j=0; j< sectorList[i].wallList.length; j++){
-				if(Math.abs(this.px - sectorList[i].wallList[j].px0) <= this.radius || Math.abs(this.px - sectorList[i].wallList[j].px1) <= this.radius){
-					this.vx*=-1.0;//return [-1,1];
-					this.px += this.vx*dt;
-				}
-				else if(Math.abs(this.py - sectorList[i].wallList[j].py0) <= this.radius || Math.abs(this.py - sectorList[i].wallList[j].py1) <= this.radius){
-					this.vy*=-1.0;//return [1,-1];
-					this.py += this.vy*dt;
-				}
+				this.handleCollision(dt, sectorList[i].wallList[j]);
 			}
 		}
 		for(var j=0; j< wallList.length; j++){
-				if(Math.abs(this.px - wallList[j].px0) <= this.radius || Math.abs(this.px - wallList[j].px1) <= this.radius){
-					this.vx*=-1.0;//return [-1,1];
-					this.px += this.vx*dt;
-				}
-				else if(Math.abs(this.py - wallList[j].py0) <= this.radius || Math.abs(this.py - wallList[j].py1) <= this.radius){
-					this.vy*=-1.0;//return [1,-1];
-					this.py += this.vy*dt;
-				}
+			this.handleCollision(dt, wallList[j]);
 		}
 	}
 	
@@ -281,7 +280,7 @@ canvas.onmousedown=function(event){
 
 function Wall(px0,py0,px1,py1){ 
 	this.px0 = px0;
-	this.py0 = px0;
+	this.py0 = py0;
 	this.px1 = px1;
 	this.py1 = py1;
 	
@@ -344,6 +343,8 @@ function getMousePos(canvas, evt) {
 
 function startGame(){
 	initField();
+	console.log(canvas.height)
+	console.log(sectorList[0])
 	animate();
 }
 
