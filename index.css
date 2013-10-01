@@ -1,7 +1,5 @@
 body {
 	background-color: #000;
-	/*width: 700px;*/
-	/*margin: auto;*/
 }
 
 div.centerit {
@@ -55,7 +53,6 @@ div#canvas {
 	margin-left: auto;
 	margin-right: auto;
 	border-radius: 15px;
-	overflow: scroll;
 }
 
 span#Cezz {
