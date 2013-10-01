@@ -10,6 +10,29 @@ var sectorList = [];
 var start = new Date().getTime();
 var elapsed;
 
+window.requestAnimFrame = (function(callback) {
+	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+	function(callback) {
+		window.setTimeout(callback, 1000 / 60);
+	};
+})();
+
+function animate() {
+	//var time = (new Date()).getTime() - startTime;
+	var dt = 1.0;
+	
+	for(var i=0; i< ballList.length; i++){
+		ballList[i].px += ballList[i].vx * dt;
+		ballList[i].py += ballList[i].vy * dt;
+		ballList[i].handleCollision;
+	}
+	drawField();
+	
+	requestAnimFrame(function(){
+		animate();
+	});
+}
+
 function Ball(){
 	this.radius = 8;
 	this.px = canvas.width * Math.random();
@@ -21,24 +44,22 @@ function Ball(){
 		for(var i=0; i< sectorList.length; i++){
 			for(var j=0; j< sectorList[i].wallList.length; j++){
 				if(Math.abs(this.px - sectorList[i].wallList[j].px0) <= this.radius || Math.abs(this.px - sectorList[i].wallList[j].px1) <= this.radius){
-					return [-1,1];
+					this.vx*=-1.0;//return [-1,1];
 				}
 				else if(Math.abs(this.py - sectorList[i].wallList[j].py0) <= this.radius || Math.abs(this.py - sectorList[i].wallList[j].py1) <= this.radius){
-					return [1,-1];
-				}
-				else{
-					return [1,1];
+					this.vy*=-1.0//return [1,-1];
 				}
 			}
 		}
 	}
-	
+	/*
 	this.handleCollision = function(){
-		var vector = this.checkCollision();
+		console.log("tacos");
+		var vector = checkCollision();
 		this.vx = this.vx * vector[0];
 		this.vy = this.vy * vector[1];
 	}
-	
+	*/
 	this.draw = function(){
 		ctx.save();
 			ctx.beginPath();
@@ -117,22 +138,14 @@ function getMousePos(canvas, evt) {
 		y: evt.clientY - rect.top
 	};
 }
-
+/*
 function animate(){
 	var dt = 1.0;//new Date().getTime();
-	for(var i=0; i< ballList.length; i++){
-		ballList[i].px += ballList[i].vx * dt;
-		ballList[i].py += ballList[i].vy * dt;
-		ballList[i].draw();
-		ballList[i].handleCollision;
-	}
-}
 
+}
+*/
 function startGame(){
 	initField();
-	//while(true){
-		animate()
-		drawField();
-	//}
+	animate()
 }
 
