@@ -15,6 +15,7 @@ canvas {
 h2 {
 	font-size: 3em;
 	text-align: center;
+	color: white;
 }
 
 div#canvas {
@@ -28,15 +29,15 @@ div#canvas {
 }
 
 span#Cezz {
-	animation-name: cezzanimation;
-	animation-duration: 2s;
+	animation-name: swapcolors;
+	animation-duration: 1s;
 	animation-timing-function: linear;
 	animation-direction: alternate;
 	animation-iteration-count: infinite;
 	animation-play-state: running;
 
 	/* Safari and Chrome*/
-	-webkit-animation-name: cezzanimation;
+	-webkit-animation-name: swapcolors;
 	-webkit-animation-duration: 2s;
 	-webkit-animation-timing-function: linear;
 	-webkit-animation-direction: alternate;
@@ -45,10 +46,28 @@ span#Cezz {
 }
 
 span#Ball {
+	animation-name: swapcolors;
+	animation-duration: 1s;
+	animation-timing-function: linear;
+	animation-direction: alternate;
+	animation-iteration-count: infinite;
+	animation-play-state: running;
 
+	/* Safari and Chrome*/
+	-webkit-animation-name: swapcolors;
+	-webkit-animation-duration: 2s;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-direction: alternate-reverse;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-play-state: running;
 }
 
 @keyframes swapcolors {
+	0%		{color: red;}
+	100%	{color: white;}
+}
+
+@-webkit-keyframes swapcolors {
 	0%		{color: red;}
 	100%	{color: white;}
 }
