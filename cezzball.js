@@ -50,6 +50,19 @@ function Ball(){
 	}
 } 
 
+function drawHorizontalLine() {
+	alert("Draw horiz");
+}
+
+function drawVerticalLine() {
+	alert("Draw vert");
+}
+
+canvas.onmousedown=function(event){
+	if (event.button == 0) drawHorizontalLine();
+	else if (event.button == 2) drawVerticalLine();
+};
+
 function Wall(px0,py0,px1,py1){ 
 	this.px0 = px0;
 	this.py0 = px0;
