@@ -10,6 +10,28 @@ var sectorList = [];
 var start = new Date().getTime();
 var elapsed;
 
+window.requestAnimFrame = (function(callback) {
+	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+	function(callback) {
+	  window.setTimeout(callback, 1000 / 60);
+	};
+})();
+
+function animate() {
+	var time = (new Date()).getTime() - startTime;
+	
+	for(var i=0; i< ballList.length; i++){
+		ballList[i].px += ballList[i].vx * dt;
+		ballList[i].py += ballList[i].vy * dt;
+		ballList[i].draw();
+		ballList[i].handleCollision;
+	}
+	
+	requestAnimFrame(function(){
+		animate();
+	});
+}
+
 function Ball(){
 	this.radius = 8;
 	this.px = canvas.width * Math.random();
@@ -104,22 +126,15 @@ function getMousePos(canvas, evt) {
 		y: evt.clientY - rect.top
 	};
 }
-
+/*
 function animate(){
 	var dt = 1.0;//new Date().getTime();
-	for(var i=0; i< ballList.length; i++){
-		ballList[i].px += ballList[i].vx * dt;
-		ballList[i].py += ballList[i].vy * dt;
-		ballList[i].draw();
-		ballList[i].handleCollision;
-	}
-}
 
+}
+*/
 function startGame(){
 	initField();
-	//while(true){
-		animate()
-		drawField();
-	//}
+	animate()
+	drawField();
 }
 
