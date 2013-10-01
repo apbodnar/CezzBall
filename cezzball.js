@@ -36,7 +36,7 @@ function animate() {
 	
 	drawField();
 	for(var i=0; i < linelist.length; i++) {
-		linelist[i].draw();
+		linelist[i].draw(dt);
 	}
 	
 	requestAnimFrame(function(){
@@ -99,9 +99,9 @@ function Line(x, y, orientation) {
 		this.leftsegment = new LineSegment(this.x, this.y, 0);
 		this.rightsegment = new LineSegment(this.x, this.y, 2);
 	}
-	this.draw = function() {
-		this.leftsegment.draw();
-		this.rightsegment.draw();
+	this.draw = function(dt) {
+		this.leftsegment.draw(dt);
+		this.rightsegment.draw(dt);
 
 	}
 }
@@ -113,15 +113,10 @@ function LineSegment(x, y, direction) {
 	this.speed = 1;
 	// 0 = up, 1 = right, 2 = down, 3 = left
 	this.direction = direction;
-	this.draw = function() {
+	this.draw = function(dt) {
 		ctx.save();
-		if (this.length >= canvas.width * 2) {
-			// Make wall
-			// Remove line
-			return;
-		}
 		ctx.strokeStyle = "black"
-		this.length = this.length + (this.speed);
+		this.length = this.length + (this.speed * dt);
 		ctx.moveTo(this.x, this.y);
 		switch (this.direction) {
 			case 0:
