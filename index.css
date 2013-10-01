@@ -78,12 +78,12 @@ section.accordianVertical label {
 	cursor: pointer;
 	color: #09FF00;
 	line-height: 33px;
-	background: red;
 	border: 1px solid white;
+	border-radius: 15px;
 }
 
 section.accordianVertical label:hover {
-	background: white;
+	background: #666;
 }
 
 section.accordianVertical input + label {
@@ -96,8 +96,8 @@ section.accordianVertical input + label {
 
 section.accordianVertical input:checked + label,
 section.accordianVertical input:checked + label:hover {
-	background: blue;
-	color: red;
+	background: #999;
+	color: #09FF00;
 }
 
 section.accordianVertical input  {
@@ -105,7 +105,9 @@ section.accordianVertical input  {
 }
 
 section.accordianVertical div.accordianDrop {
-	background: white;
+	background: #999;
+	width: 195px;
+	margin-left: 15px;
 	overflow: hidden;
 	height: 0px;
 	-webkit-transition:all 0.3s ease-in-out;
@@ -116,8 +118,7 @@ section.accordianVertical div.accordianDrop {
 }
 
 section.accordianVertical div.accordianDrop p {
-	color: green;
-	line-height: 23px;
+	color: #09FF00;
 	font-size: 14px;
 	padding: 10px; 
 }

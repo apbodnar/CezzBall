@@ -111,6 +111,7 @@ function LineSegment(x, y, direction) {
 	this.x = x;
 	this.y = y;
 	this.speed = 1;
+	this.collidedelement;
 	// 0 = up, 1 = right, 2 = down, 3 = left
 	this.direction = direction;
 	this.draw = function(dt) {
@@ -132,21 +133,70 @@ function LineSegment(x, y, direction) {
 				ctx.lineTo(this.x - this.length / 2, this.y);
 				break;
 		}
+		if (checkLineWallCollision(this)) {
+			// Left this green for now to see when walls are created
+			ctx.strokeStyle = "green";
+			// Make wall
+			convertLineToWall(this);
+			// Check if a new sector should be made
+			makeNewSectors();
+			// Remove line
+			removeLine(this);
+			return;
+		}
+		else if (checkBallCollision(this)) {
+			// Remove line
+			removeLine(this);
+			return;
+		}
 		ctx.stroke();
 		ctx.restore();
 	}
 }
 
+// Checks lineElement against the current walls to see if the
+// end of the line has his a wall. Should have some fudge room.
+// Sets collided element of lineElement so that it may be referenced
+function checkLineWallCollision(lineElement) {
+	// Bogus return values
+	lineElement.collidedelement = sectorList[0];
+	return false;
+}
+
+function checkBallCollision(lineElement) {
+	// Bogus return values
+	lineElement.collidedelement = ballList[0];
+	return false;
+}
+// Converts a line to a wall, adds that to the wall list
+function convertLineToWall(lineElement) {
+	// Use x, y, length to get the new wall
+	// Create the new wall
+	// Add it to the list
+}
+
+// Removes the line from the list, so it is not always drawn
+function removeLine(lineElement) {
+	// Find index if item to remove
+	// Splice it out of the array
+	// Hopefully garbage collection will be around to pick it up
+}
+
+// Parses the walls list and updates the sector list
+function makeNewSectors() {
+	
+}
+
 function drawHorizontalLine(event) {
 	var mousePos = getMousePos(canvas, event);
 	linelist.push(new Line(mousePos.x, mousePos.y, 0));
-	console.log("Pushing: " + mousePos.x + " " + mousePos.y);
+	// console.log("Pushing: " + mousePos.x + " " + mousePos.y);
 }
 
 function drawVerticalLine(event) {
 	var mousePos = getMousePos(canvas, event);
 	linelist.push(new Line(mousePos.x, mousePos.y, 1));
-	console.log("Pushing: " + mousePos.x + " " + mousePos.y);
+	// console.log("Pushing: " + mousePos.x + " " + mousePos.y);
 }
 
 canvas.onmousedown=function(event){
