@@ -8,7 +8,7 @@ var level = 1;
 var ballList = [];
 var wallList = [];
 var sectorList = [];
-var linelist = [];
+var lineList = [];
 var start = new Date().getTime();
 var lastTime = 0;
 
@@ -37,8 +37,8 @@ function animate() {
 	for(var i=0; i< ballList.length; i++){
 		ballList[i].update(dt);
 	}
-	for(var i=0;i < linelist.length; i++) {
-		linelist[i].update(dt);
+	for(var i=0;i < lineList.length; i++) {
+		lineList[i].update(dt);
 	}
 	drawField();
 	requestAnimFrame(function(){
@@ -52,8 +52,8 @@ function drawField(){
 	for(var i=0; i< ballList.length; i++){
 		ballList[i].draw();
 	}
-	for(var i=0;i < linelist.length; i++) {
-		linelist[i].draw();
+	for(var i=0;i < lineList.length; i++) {
+		lineList[i].draw();
 	}
 }
 
@@ -88,6 +88,7 @@ function Ball(){
 	this.draw = function(){
 		ctx.save();
 			ctx.beginPath();
+			ctx.strokeSytle = 'black';
 			ctx.arc((this.px), (this.py), this.radius, 0, 2 * Math.PI, false);
 			ctx.fillStyle = 'red';
 			ctx.fill();
@@ -103,7 +104,6 @@ function LineSegment(direction, xroot, yroot) {
 	this.length = 0;
 	this.isBecomingWall = false;
 	this.broken = false;
-
 
 	this.draw = function() {
 		ctx.save();
@@ -193,37 +193,30 @@ function ballCollidesWithLine(segment) {
 	var fuzzyDistanceFromBase = 10; //px
 	for (var i = ballList.length - 1; i >= 0; i--) {
 		switch (segment.drawingDirection) {
+			//Math.abs(ballList[i].px - sectorList[i].wallList[j].px1) <= ballList[i].radius
 			case "up":
+				/*
 				if (Math.ceil(ballList[i].px) < segment.basex + fuzzyDistanceFromBase &&
 					Math.ceil(ballList[i].px) > segment.basex - fuzzyDistanceFromBase &&
 					Math.ceil(ballList[i].py) < segment.basey &&
 					Math.ceil(ballList[i].py) >= segment.basey + segment.length) {
 					return true;
 				} 
+				*/
+				return (Math.abs(ballList[i].px - segment.basex) <= ballList[i].radius &&
+					(ballList[i].py < segment.basey && ballList[i].py > (segment.basey - segment.length)))
 				break;
 			case "right":
-				if (Math.ceil(ballList[i].py) < segment.basey + fuzzyDistanceFromBase &&
-					Math.ceil(ballList[i].py) > segment.basey - fuzzyDistanceFromBase &&
-					Math.ceil(ballList[i].px) >= segment.basex &&
-					Math.ceil(ballList[i].px) < segment.basex + segment.length) {
-					return true;
-				} 
+				return (Math.abs(ballList[i].py - segment.basey) <= ballList[i].radius &&
+					(ballList[i].px > segment.basex && ballList[i].px < (segment.basex + segment.length)))
 				break;
 			case "down":
-				if (Math.ceil(ballList[i].px) < segment.basex + fuzzyDistanceFromBase &&
-					Math.ceil(ballList[i].px) > segment.basex - fuzzyDistanceFromBase &&
-					Math.ceil(ballList[i].py) >= segment.basey &&
-					Math.ceil(ballList[i].py) < segment.basey + segment.length) {
-					return true;
-				} 
+				return (Math.abs(ballList[i].px - segment.basex) <= ballList[i].radius &&
+					(ballList[i].py > segment.basey && ballList[i].py < (segment.basey + segment.length)))
 				break;
 			case "left":
-				if (Math.ceil(ballList[i].py) < segment.basey + fuzzyDistanceFromBase &&
-					Math.ceil(ballList[i].py) > segment.basey - fuzzyDistanceFromBase &&
-					Math.ceil(ballList[i].px) < segment.basex &&
-					Math.ceil(ballList[i].px) >= segment.basex + segment.length) {
-					return true;
-				} 
+				return (Math.abs(ballList[i].py - segment.basey) <= ballList[i].radius &&
+					(ballList[i].px < segment.basex && ballList[i].px > (segment.basex - segment.length)))
 				break;
 		}
 	};
@@ -255,9 +248,9 @@ function removeLine(segment) {
 	// Find index if item to remove
 	// Splice it out of the array
 	// Hopefully garbage collection will be around to pick it up
-	var index = linelist.indexOf(segment);
+	var index = lineList.indexOf(segment);
 	if (index > -1) {
-		linelist.splice(index, 1);
+		lineList.splice(index, 1);
 	}
 }
 
@@ -268,15 +261,15 @@ function makeNewSectors() {
 
 function drawHorizontalLines(event) {
 	var mousePos = getMousePos(canvas, event);
-	linelist.push(new LineSegment("left", mousePos.x, mousePos.y));
-	linelist.push(new LineSegment("right", mousePos.x, mousePos.y));
+	lineList.push(new LineSegment("left", mousePos.x, mousePos.y));
+	lineList.push(new LineSegment("right", mousePos.x, mousePos.y));
 	// console.log("Pushing: " + mousePos.x + " " + mousePos.y);
 }
 
 function drawVerticalLines(event) {
 	var mousePos = getMousePos(canvas, event);
-	linelist.push(new LineSegment("up", mousePos.x, mousePos.y));
-	linelist.push(new LineSegment("down", mousePos.x, mousePos.y));
+	lineList.push(new LineSegment("up", mousePos.x, mousePos.y));
+	lineList.push(new LineSegment("down", mousePos.x, mousePos.y));
 	// console.log("Pushing: " + mousePos.x + " " + mousePos.y);
 }
 
@@ -304,7 +297,6 @@ function Sector(){
 	this.valid = function(){
 		return false;
 	}
-	
 	this.containsBall = function(ball){
 		return false;
 	}
@@ -325,10 +317,10 @@ function initBoundary(){
 	sectorList[0].wallList.push(new Wall(canvas.width,canvas.height,canvas.width,0));
 
 	// Push the boundaries onto the wallList
-	wallList.push(new Wall(0,0,canvas.width,0));
-	wallList.push(new Wall(0,0,0,canvas.height));
-	wallList.push(new Wall(canvas.width,canvas.height,0,canvas.height));
-	wallList.push(new Wall(canvas.width,canvas.height,canvas.width,0));
+	//wallList.push(new Wall(0,0,canvas.width,0));
+	//wallList.push(new Wall(0,0,0,canvas.height));
+	//wallList.push(new Wall(canvas.width,canvas.height,0,canvas.height));
+	//wallList.push(new Wall(canvas.width,canvas.height,canvas.width,0));
 }
 
 function initField(){
