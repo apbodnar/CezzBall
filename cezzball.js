@@ -50,17 +50,17 @@ function Ball(){
 	}
 } 
 
-function drawHorizontalLine() {
+function drawHorizontalLine(event) {
 	alert("Draw horiz");
 }
 
-function drawVerticalLine() {
+function drawVerticalLine(event) {
 	alert("Draw vert");
 }
 
 canvas.onmousedown=function(event){
-	if (event.button == 0) drawHorizontalLine();
-	else if (event.button == 2) drawVerticalLine();
+	if (event.button == 0) drawHorizontalLine(event);
+	else if (event.button == 2) drawVerticalLine(event);
 };
 
 function Wall(px0,py0,px1,py1){ 
