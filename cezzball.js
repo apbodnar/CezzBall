@@ -37,7 +37,7 @@ function animate() {
 	
 	drawField();
 	for(var i=0; i < linelist.length; i++) {
-		linelist[i].draw(dt);
+		linelist[i].update(dt);
 	}
 	
 	requestAnimFrame(function(){
@@ -86,91 +86,164 @@ function Ball(){
 	}
 } 
 
-function Line(x, y, orientation) {
-	this.length = 0;
-	this.x = x;
-	this.y = y;
-	// 0 = horizontal, 1 = vertical
-	this.orientation = orientation;
-	if (this.orientation == 0) {
-		this.leftsegment = new LineSegment(this.x, this.y, 3);
-		this.rightsegment = new LineSegment(this.x, this.y, 1);
-	}
-	else if (this.orientation == 1) {
-		this.leftsegment = new LineSegment(this.x, this.y, 0);
-		this.rightsegment = new LineSegment(this.x, this.y, 2);
-	}
-	this.draw = function(dt) {
-		this.leftsegment.draw(dt);
-		this.rightsegment.draw(dt);
+// function LineRoot(x, y, orientation) {
+// 	this.x = x;
+// 	this.y = y;
+// 	// 0 = horizontal, 1 = vertical
+// 	this.orientation = orientation;
+// 	if (this.orientation == 0) {
+// 		this.leftsegment = new LineSegment(this.x, this.y, 3);
+// 		this.rightsegment = new LineSegment(this.x, this.y, 1);
+// 	}
+// 	else if (this.orientation == 1) {
+// 		this.leftsegment = new LineSegment(this.x, this.y, 0);
+// 		this.rightsegment = new LineSegment(this.x, this.y, 2);
+// 	}
+// 	this.draw = function(dt) {
+// 		this.leftsegment.draw(dt);
+// 		this.rightsegment.draw(dt);
 
+// 	}
+// }
+
+// function LineSegment(x, y, direction) {
+// 	this.length = 0;
+// 	this.x = x;
+// 	this.y = y;
+// 	this.stop = false;
+// 	// 0 = up, 1 = right, 2 = down, 3 = left
+// 	this.direction = direction;
+// 	this.draw = function(dt) {
+// 		ctx.save();
+// 		ctx.strokeStyle = "black"
+// 		if (!this.stop) {
+// 			this.length = this.length + (dt);
+// 		}
+// 		ctx.moveTo(this.x, this.y);
+// 		switch (this.direction) {
+// 			case 0:
+// 				ctx.lineTo(this.x, this.y + this.length / 2);
+// 				break;
+// 			case 1:
+// 				ctx.lineTo(this.x + this.length / 2, this.y);
+// 				break;
+// 			case 2:
+// 				ctx.lineTo(this.x, this.y - this.length / 2);
+// 				break;
+// 			case 3:
+// 				ctx.lineTo(this.x - this.length / 2, this.y);
+// 				break;
+// 		}
+// 		if (checkLineWallCollision(this)) {
+// 			// Left this green for now to see when walls are created
+// 			ctx.strokeStyle = "green";
+// 			// Make wall
+// 			convertLineToWall(this);
+// 			// Check if a new sector should be made
+// 			makeNewSectors();
+// 			// Remove line
+// 			removeLine(this);
+// 			// return;
+// 		}
+// 		else if (checkBallCollision(this)) {
+// 			// Remove line
+// 			removeLine(this);
+// 			return;
+// 		}
+// 		ctx.stroke();
+// 		ctx.restore();
+// 	}
+// }
+
+// // Checks segment against the current walls to see if the
+// // end of the line has his a wall. Should have some fudge room.
+// // Sets collided element of segment so that it may be referenced
+function lineCollidesWithWall(segment) {
+	for (var i = wallList.length - 1; i >= 0; i--) {
+		// console.log("x + len: " + (segment.x + length) + " x - len: " + (segment - x) + " y + len: " + (segment) + " y: " + 2*segment.y);
+		// If line is outside canvas, stop it
+		temp = 0;
+		switch (segment.drawingDirection) {
+			case "up":
+				temp = segment.basey - segment.length;
+				if (temp < 0) {
+					return true;
+				}
+				break;
+			case "right":
+				temp = segment.basex + segment.length;
+				if (temp >= canvas.width) {
+					return true;
+				}
+				break;
+			case "down":
+				temp = segment.basey + segment.length;
+				if (temp >= canvas.height) {
+					return true;
+				}
+				break;
+			case "left":
+				temp = segment.basex - segment.length;
+				if (temp < 0) {
+					return true;
+				}
+				break;
+		}
 	}
+	return false;
 }
 
-function LineSegment(x, y, direction) {
+function LineSegment(direction, xroot, yroot) {
+	this.drawingDirection = direction;
+	this.basex = xroot;
+	this.basey = yroot;
 	this.length = 0;
-	this.x = x;
-	this.y = y;
-	this.speed = 1;
-	this.collidedelement;
-	// 0 = up, 1 = right, 2 = down, 3 = left
-	this.direction = direction;
-	this.draw = function(dt) {
+	this.stop = false;
+
+	this.draw = function() {
 		ctx.save();
-		ctx.strokeStyle = "black"
-		this.length = this.length + (this.speed * dt);
-		ctx.moveTo(this.x, this.y);
-		switch (this.direction) {
-			case 0:
-				ctx.lineTo(this.x, this.y + this.length / 2);
-				break;
-			case 1:
-				ctx.lineTo(this.x + this.length / 2, this.y);
-				break;
-			case 2:
-				ctx.lineTo(this.x, this.y - this.length / 2);
-				break;
-			case 3:
-				ctx.lineTo(this.x - this.length / 2, this.y);
-				break;
+		if (this.stop) {
+			ctx.strokeStyle = "#f00";
 		}
-		if (checkLineWallCollision(this)) {
-			// Left this green for now to see when walls are created
-			ctx.strokeStyle = "green";
-			// Make wall
-			convertLineToWall(this);
-			// Check if a new sector should be made
-			makeNewSectors();
-			// Remove line
-			removeLine(this);
-			return;
+		else {
+			ctx.strokeStyle = "#000000";
 		}
-		else if (checkBallCollision(this)) {
-			// Remove line
-			removeLine(this);
-			return;
+		ctx.moveTo(this.basex, this.basey);
+		switch (this.drawingDirection) {
+			case "up":
+				ctx.lineTo(this.basex, this.basey - this.length);
+				break;
+			case "right":
+				ctx.lineTo(this.basex + this.length, this.basey);
+				break;
+			case "down":
+				ctx.lineTo(this.basex, this.basey + this.length);
+				break;
+			case "left":
+				ctx.lineTo(this.basex - this.length, this.basey);
+				break;
 		}
 		ctx.stroke();
 		ctx.restore();
 	}
+
+	this.update = function(dt) {
+		if (!this.stop) {
+			this.length = this.length + (dt);
+		}
+		if (lineCollidesWithWall(this)) {
+			this.stop = true;
+		}
+		this.draw();
+	}
 }
 
-// Checks lineElement against the current walls to see if the
-// end of the line has his a wall. Should have some fudge room.
-// Sets collided element of lineElement so that it may be referenced
-function checkLineWallCollision(lineElement) {
+function checkBallCollision(segment) {
 	// Bogus return values
-	lineElement.collidedelement = sectorList[0];
-	return false;
-}
-
-function checkBallCollision(lineElement) {
-	// Bogus return values
-	lineElement.collidedelement = ballList[0];
 	return false;
 }
 // Converts a line to a wall, adds that to the wall list
-function convertLineToWall(lineElement) {
+function convertLineToWall(segment) {
 	// Use x, y, length to get the new wall
 	// Create the new wall
 	// Add it to the list
@@ -191,7 +264,7 @@ function convertLineToWall(lineElement) {
 }
 
 // Removes the line from the list, so it is not always drawn
-function removeLine(lineElement) {
+function removeLine(segment) {
 	// Find index if item to remove
 	// Splice it out of the array
 	// Hopefully garbage collection will be around to pick it up
@@ -206,25 +279,27 @@ function makeNewSectors() {
 	
 }
 
-function drawHorizontalLine(event) {
+function drawHorizontalLines(event) {
 	var mousePos = getMousePos(canvas, event);
-	linelist.push(new Line(mousePos.x, mousePos.y, 0));
+	linelist.push(new LineSegment("left", mousePos.x, mousePos.y));
+	linelist.push(new LineSegment("right", mousePos.x, mousePos.y));
 	// console.log("Pushing: " + mousePos.x + " " + mousePos.y);
 }
 
-function drawVerticalLine(event) {
+function drawVerticalLines(event) {
 	var mousePos = getMousePos(canvas, event);
-	linelist.push(new Line(mousePos.x, mousePos.y, 1));
+	linelist.push(new LineSegment("up", mousePos.x, mousePos.y));
+	linelist.push(new LineSegment("down", mousePos.x, mousePos.y));
 	// console.log("Pushing: " + mousePos.x + " " + mousePos.y);
 }
 
 canvas.onmousedown=function(event){
 	if (event.button == 0) {
-		drawHorizontalLine(event);
+		drawHorizontalLines(event);
 		return true;
 	}
 	else if (event.button == 2) {
-		drawVerticalLine(event);
+		drawVerticalLines(event);
 		return false;
 	}
 };
