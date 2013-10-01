@@ -24,7 +24,7 @@ function animate() {
 	for(var i=0; i< ballList.length; i++){
 		ballList[i].px += ballList[i].vx * dt;
 		ballList[i].py += ballList[i].vy * dt;
-		ballList[i].handleCollision;
+		ballList[i].checkCollision();
 	}
 	drawField();
 	
@@ -45,21 +45,16 @@ function Ball(){
 			for(var j=0; j< sectorList[i].wallList.length; j++){
 				if(Math.abs(this.px - sectorList[i].wallList[j].px0) <= this.radius || Math.abs(this.px - sectorList[i].wallList[j].px1) <= this.radius){
 					this.vx*=-1.0;//return [-1,1];
+					this.px += this.vx*1.0;
 				}
 				else if(Math.abs(this.py - sectorList[i].wallList[j].py0) <= this.radius || Math.abs(this.py - sectorList[i].wallList[j].py1) <= this.radius){
-					this.vy*=-1.0//return [1,-1];
+					this.vy*=-1.0;//return [1,-1];
+					this.py += this.vy*1.0;
 				}
 			}
 		}
 	}
-	/*
-	this.handleCollision = function(){
-		console.log("tacos");
-		var vector = checkCollision();
-		this.vx = this.vx * vector[0];
-		this.vy = this.vy * vector[1];
-	}
-	*/
+	
 	this.draw = function(){
 		ctx.save();
 			ctx.beginPath();
@@ -72,11 +67,11 @@ function Ball(){
 } 
 
 function drawHorizontalLine() {
-	alert("Draw horiz");
+	//alert("Draw horiz");
 }
 
 function drawVerticalLine() {
-	alert("Draw vert");
+	//alert("Draw vert");
 }
 
 canvas.onmousedown=function(event){
