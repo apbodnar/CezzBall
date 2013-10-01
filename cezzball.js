@@ -89,39 +89,56 @@ function Line(x, y, orientation) {
 	this.length = 0;
 	this.x = x;
 	this.y = y;
-	this.speed = 2;
 	// 0 = horizontal, 1 = vertical
 	this.orientation = orientation;
+	if (this.orientation == 0) {
+		this.leftsegment = new LineSegment(this.x, this.y, 3);
+		this.rightsegment = new LineSegment(this.x, this.y, 1);
+	}
+	else if (this.orientation == 1) {
+		this.leftsegment = new LineSegment(this.x, this.y, 0);
+		this.rightsegment = new LineSegment(this.x, this.y, 2);
+	}
 	this.draw = function() {
-		ctx.strokeStyle = 'black';
-		if (this.orientation == 0) {
-			if (this.length >= canvas.width) {
-				// Make wall
-				// Remove line
-				return;
-			}
-			this.length = this.length + (this.speed);
-			ctx.moveTo(this.x, this.y);
-			ctx.lineTo(this.x + this.length / 2, this.y);
-			ctx.stroke();
-			ctx.moveTo(this.x, this.y);
-			ctx.lineTo(this.x - this.length / 2, this.y);
-			ctx.stroke();
+		this.leftsegment.draw();
+		this.rightsegment.draw();
+
+	}
+}
+
+function LineSegment(x, y, direction) {
+	this.length = 0;
+	this.x = x;
+	this.y = y;
+	this.speed = 1;
+	// 0 = up, 1 = right, 2 = down, 3 = left
+	this.direction = direction;
+	this.draw = function() {
+		ctx.save();
+		if (this.length >= canvas.width * 2) {
+			// Make wall
+			// Remove line
+			return;
 		}
-		else if (this.orientation == 1) {
-			if (this.length >= canvas.width) {
-				// Make wall
-				// Remove line
-				return;
-			}
-			this.length = this.length + (this.speed);
-			ctx.moveTo(this.x, this.y);
-			ctx.lineTo(this.x, this.y + this.length / 2);
-			ctx.stroke();
-			ctx.moveTo(this.x, this.y);
-			ctx.lineTo(this.x, this.y - this.length / 2);
-			ctx.stroke();
+		ctx.strokeStyle = "black"
+		this.length = this.length + (this.speed);
+		ctx.moveTo(this.x, this.y);
+		switch (this.direction) {
+			case 0:
+				ctx.lineTo(this.x, this.y + this.length / 2);
+				break;
+			case 1:
+				ctx.lineTo(this.x + this.length / 2, this.y);
+				break;
+			case 2:
+				ctx.lineTo(this.x, this.y - this.length / 2);
+				break;
+			case 3:
+				ctx.lineTo(this.x - this.length / 2, this.y);
+				break;
 		}
+		ctx.stroke();
+		ctx.restore();
 	}
 }
 
