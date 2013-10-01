@@ -174,6 +174,20 @@ function convertLineToWall(lineElement) {
 	// Use x, y, length to get the new wall
 	// Create the new wall
 	// Add it to the list
+	switch(lineElement.direction) {
+		case 0:
+			wallList.push(new Wall(lineElement.x, 0, lineElement.x, lineElement.y));
+			break;
+		case 1:
+			wallList.push(new Wall(lineElement.x, lineElement.y, canvas.width, lineElement.y));
+			break;
+		case 2:
+			wallList.push(new Wall(lineElement.x, lineElement.y, lineElement.x, canvas.height));
+			break;
+		case 3:
+			wallList.push(new Wall(0, lineElement.y, lineElement.x, lineElement.y));
+			break;
+	}
 }
 
 // Removes the line from the list, so it is not always drawn
@@ -181,6 +195,10 @@ function removeLine(lineElement) {
 	// Find index if item to remove
 	// Splice it out of the array
 	// Hopefully garbage collection will be around to pick it up
+	var index = linelist.indexOf(lineElement);
+	if (index > -1) {
+		linelist.splice(index, 1);
+	}
 }
 
 // Parses the walls list and updates the sector list
