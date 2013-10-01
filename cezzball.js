@@ -19,27 +19,28 @@ window.requestAnimFrame = (function(callback) {
 	};
 })();
 
-function animate() {
-	//var time = (new Date()).getTime() - startTime;
-
+function getdt(){
 	var dt = 0.0;
 	var timeNow = new Date().getTime();
 	if (lastTime != 0){
 		dt = (timeNow - lastTime)/5.0;
 	}
 	lastTime = timeNow;
+	return dt
+}
+
+function animate() {
+	//var time = (new Date()).getTime() - startTime;
+	console.log(wallList.length);
+	var dt = getdt();
 
 	for(var i=0; i< ballList.length; i++){
-		ballList[i].px += ballList[i].vx * dt;
-		ballList[i].py += ballList[i].vy * dt;
-		ballList[i].checkCollision(dt);
+		ballList[i].update(dt);
 	}
-	
-	drawField();
-	for(var i=0; i < linelist.length; i++) {
+	for(var i=0;i < linelist.length; i++) {
 		linelist[i].update(dt);
 	}
-	
+	drawField();
 	requestAnimFrame(function(){
 		animate();
 	});
@@ -50,6 +51,9 @@ function drawField(){
 	ctx.fillRect(0,0,canvas.width,canvas.height);
 	for(var i=0; i< ballList.length; i++){
 		ballList[i].draw();
+	}
+	for(var i=0;i < linelist.length; i++) {
+		linelist[i].draw();
 	}
 }
 
@@ -75,6 +79,12 @@ function Ball(){
 		}
 	}
 	
+	this.update = function(dt){
+		this.px += this.vx * dt;
+		this.py += this.vy * dt;
+		this.checkCollision(dt);
+	}
+	
 	this.draw = function(){
 		ctx.save();
 			ctx.beginPath();
@@ -86,78 +96,64 @@ function Ball(){
 	}
 } 
 
-// function LineRoot(x, y, orientation) {
-// 	this.x = x;
-// 	this.y = y;
-// 	// 0 = horizontal, 1 = vertical
-// 	this.orientation = orientation;
-// 	if (this.orientation == 0) {
-// 		this.leftsegment = new LineSegment(this.x, this.y, 3);
-// 		this.rightsegment = new LineSegment(this.x, this.y, 1);
-// 	}
-// 	else if (this.orientation == 1) {
-// 		this.leftsegment = new LineSegment(this.x, this.y, 0);
-// 		this.rightsegment = new LineSegment(this.x, this.y, 2);
-// 	}
-// 	this.draw = function(dt) {
-// 		this.leftsegment.draw(dt);
-// 		this.rightsegment.draw(dt);
+function LineSegment(direction, xroot, yroot) {
+	this.drawingDirection = direction;
+	this.basex = xroot;
+	this.basey = yroot;
+	this.length = 0;
+	this.isBecomingWall = false;
+	this.broken = false;
 
-// 	}
-// }
 
-// function LineSegment(x, y, direction) {
-// 	this.length = 0;
-// 	this.x = x;
-// 	this.y = y;
-// 	this.stop = false;
-// 	// 0 = up, 1 = right, 2 = down, 3 = left
-// 	this.direction = direction;
-// 	this.draw = function(dt) {
-// 		ctx.save();
-// 		ctx.strokeStyle = "black"
-// 		if (!this.stop) {
-// 			this.length = this.length + (dt);
-// 		}
-// 		ctx.moveTo(this.x, this.y);
-// 		switch (this.direction) {
-// 			case 0:
-// 				ctx.lineTo(this.x, this.y + this.length / 2);
-// 				break;
-// 			case 1:
-// 				ctx.lineTo(this.x + this.length / 2, this.y);
-// 				break;
-// 			case 2:
-// 				ctx.lineTo(this.x, this.y - this.length / 2);
-// 				break;
-// 			case 3:
-// 				ctx.lineTo(this.x - this.length / 2, this.y);
-// 				break;
-// 		}
-// 		if (checkLineWallCollision(this)) {
-// 			// Left this green for now to see when walls are created
-// 			ctx.strokeStyle = "green";
-// 			// Make wall
-// 			convertLineToWall(this);
-// 			// Check if a new sector should be made
-// 			makeNewSectors();
-// 			// Remove line
-// 			removeLine(this);
-// 			// return;
-// 		}
-// 		else if (checkBallCollision(this)) {
-// 			// Remove line
-// 			removeLine(this);
-// 			return;
-// 		}
-// 		ctx.stroke();
-// 		ctx.restore();
-// 	}
-// }
+	this.draw = function() {
+		ctx.save();
+		if (this.isBecomingWall) {
+			ctx.strokeStyle = "#f00";
+		}
+		else {
+			ctx.strokeStyle = "#000000";
+		}
+		ctx.moveTo(this.basex, this.basey);
+		switch (this.drawingDirection) {
+			case "up":
+				ctx.lineTo(this.basex, this.basey - this.length);
+				break;
+			case "right":
+				ctx.lineTo(this.basex + this.length, this.basey);
+				break;
+			case "down":
+				ctx.lineTo(this.basex, this.basey + this.length);
+				break;
+			case "left":
+				ctx.lineTo(this.basex - this.length, this.basey);
+				break;
+		}
+		ctx.stroke();
+		ctx.restore();
+	}
 
-// // Checks segment against the current walls to see if the
-// // end of the line has his a wall. Should have some fudge room.
-// // Sets collided element of segment so that it may be referenced
+	this.update = function(dt) {
+		if (!this.stop) {
+			this.length = this.length + (dt);
+		}
+		if (this.broken) {
+			console.log("Broke a line!");
+			return;
+		}
+		if (lineCollidesWithWall(this)) {
+			this.isBecomingWall = true;
+		}
+		if (ballCollidesWithLine(this)) {
+			this.broken = true;
+			removeLine(this);
+			return;
+		}
+	}
+}
+
+// Checks segment against the current walls to see if the
+// end of the line has his a wall. Should have some fudge room.
+// Sets collided element of segment so that it may be referenced
 function lineCollidesWithWall(segment) {
 	for (var i = wallList.length - 1; i >= 0; i--) {
 		// console.log("x + len: " + (segment.x + length) + " x - len: " + (segment - x) + " y + len: " + (segment) + " y: " + 2*segment.y);
@@ -193,53 +189,44 @@ function lineCollidesWithWall(segment) {
 	return false;
 }
 
-function LineSegment(direction, xroot, yroot) {
-	this.drawingDirection = direction;
-	this.basex = xroot;
-	this.basey = yroot;
-	this.length = 0;
-	this.stop = false;
-
-	this.draw = function() {
-		ctx.save();
-		if (this.stop) {
-			ctx.strokeStyle = "#f00";
-		}
-		else {
-			ctx.strokeStyle = "#000000";
-		}
-		ctx.moveTo(this.basex, this.basey);
-		switch (this.drawingDirection) {
+function ballCollidesWithLine(segment) {
+	var fuzzyDistanceFromBase = 10; //px
+	for (var i = ballList.length - 1; i >= 0; i--) {
+		switch (segment.drawingDirection) {
 			case "up":
-				ctx.lineTo(this.basex, this.basey - this.length);
+				if (Math.ceil(ballList[i].px) < segment.basex + fuzzyDistanceFromBase &&
+					Math.ceil(ballList[i].px) > segment.basex - fuzzyDistanceFromBase &&
+					Math.ceil(ballList[i].py) < segment.basey &&
+					Math.ceil(ballList[i].py) >= segment.basey + segment.length) {
+					return true;
+				} 
 				break;
 			case "right":
-				ctx.lineTo(this.basex + this.length, this.basey);
+				if (Math.ceil(ballList[i].py) < segment.basey + fuzzyDistanceFromBase &&
+					Math.ceil(ballList[i].py) > segment.basey - fuzzyDistanceFromBase &&
+					Math.ceil(ballList[i].px) >= segment.basex &&
+					Math.ceil(ballList[i].px) < segment.basex + segment.length) {
+					return true;
+				} 
 				break;
 			case "down":
-				ctx.lineTo(this.basex, this.basey + this.length);
+				if (Math.ceil(ballList[i].px) < segment.basex + fuzzyDistanceFromBase &&
+					Math.ceil(ballList[i].px) > segment.basex - fuzzyDistanceFromBase &&
+					Math.ceil(ballList[i].py) >= segment.basey &&
+					Math.ceil(ballList[i].py) < segment.basey + segment.length) {
+					return true;
+				} 
 				break;
 			case "left":
-				ctx.lineTo(this.basex - this.length, this.basey);
+				if (Math.ceil(ballList[i].py) < segment.basey + fuzzyDistanceFromBase &&
+					Math.ceil(ballList[i].py) > segment.basey - fuzzyDistanceFromBase &&
+					Math.ceil(ballList[i].px) < segment.basex &&
+					Math.ceil(ballList[i].px) >= segment.basex + segment.length) {
+					return true;
+				} 
 				break;
 		}
-		ctx.stroke();
-		ctx.restore();
-	}
-
-	this.update = function(dt) {
-		if (!this.stop) {
-			this.length = this.length + (dt);
-		}
-		if (lineCollidesWithWall(this)) {
-			this.stop = true;
-		}
-		this.draw();
-	}
-}
-
-function checkBallCollision(segment) {
-	// Bogus return values
+	};
 	return false;
 }
 // Converts a line to a wall, adds that to the wall list
@@ -247,18 +234,18 @@ function convertLineToWall(segment) {
 	// Use x, y, length to get the new wall
 	// Create the new wall
 	// Add it to the list
-	switch(lineElement.direction) {
-		case 0:
-			wallList.push(new Wall(lineElement.x, 0, lineElement.x, lineElement.y));
+	switch(segment.direction) {
+		case "up":
+			wallList.push(new Wall(segment.x, 0, segment.x, segment.y));
 			break;
-		case 1:
-			wallList.push(new Wall(lineElement.x, lineElement.y, canvas.width, lineElement.y));
+		case "right":
+			wallList.push(new Wall(segment.x, segment.y, canvas.width, segment.y));
 			break;
-		case 2:
-			wallList.push(new Wall(lineElement.x, lineElement.y, lineElement.x, canvas.height));
+		case "down":
+			wallList.push(new Wall(segment.x, segment.y, segment.x, canvas.height));
 			break;
-		case 3:
-			wallList.push(new Wall(0, lineElement.y, lineElement.x, lineElement.y));
+		case "left":
+			wallList.push(new Wall(0, segment.y, segment.x, segment.y));
 			break;
 	}
 }
@@ -268,7 +255,7 @@ function removeLine(segment) {
 	// Find index if item to remove
 	// Splice it out of the array
 	// Hopefully garbage collection will be around to pick it up
-	var index = linelist.indexOf(lineElement);
+	var index = linelist.indexOf(segment);
 	if (index > -1) {
 		linelist.splice(index, 1);
 	}
