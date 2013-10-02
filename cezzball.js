@@ -38,7 +38,6 @@ function checkFreedom(){
 	for(var i=0; i< ballList.length; i++){
 		range += (ballList[i].xrange+ballList[i].yrange);
 	}
-	//console.log((range/level)/(canvas.width+canvas.height));
 	freedom = (range/level)/(canvas.width+canvas.height);
 	if(freedom <= 0.2){
 		nextLevel();
@@ -88,8 +87,8 @@ function drawField(){
 
 function Ball(){
 	this.radius = 8;
-	this.px = canvas.width * Math.random();
-	this.py = canvas.height * Math.random();
+	this.px = (canvas.width - this.radius) * Math.random() + this.radius/2;
+	this.py = (canvas.height - this.radius) * Math.random() + this.radius/2;
 	this.vx = Math.random() < 0.5 ? -1.0 : 1.0;
 	this.vy = Math.random() < 0.5 ? -1.0 : 1.0;
 	this.xrange = canvas.width;
@@ -101,11 +100,9 @@ function Ball(){
 	
 	this.calcRangex = function(){
 		this.xrange = Math.abs(this.prevx - this.px);
-		console.log(this.xrange)
 	}
 	this.calcRangey = function(){
 		this.yrange = Math.abs(this.prevy - this.py);
-		console.log(this.yrange)
 	}
 	
 	this.handleCollision = function(dt, wall){
@@ -192,10 +189,6 @@ function LineSegment(direction, xroot, yroot) {
 		if (!this.stop) {
 			this.length = this.length + (dt);
 		}
-		if (this.broken) {
-			console.log("Broke a line!");
-			return;
-		}
 		if (lineCollidesWithWall(this)) {
 			convertLineToWall(this)
 			removeLine(this);
@@ -212,10 +205,9 @@ function LineSegment(direction, xroot, yroot) {
 // Sets collided element of segment so that it may be referenced
 function lineCollidesWithWall(segment) {
 	for (var i=0; i < wallList.length; i++) {
-		// console.log("x + len: " + (segment.x + length) + " x - len: " + (segment - x) + " y + len: " + (segment) + " y: " + 2*segment.y);
 		// If line is outside canvas, stop it
 		temp = 0;
-		var allowance = 2;
+		var allowance = 3;
 		var wall = wallList[i];
 		switch (segment.drawingDirection) {
 			case "up":
@@ -330,14 +322,12 @@ function drawHorizontalLines(event) {
 	var mousePos = getMousePos(canvas, event);
 	lineList.push(new LineSegment("left", mousePos.x, mousePos.y));
 	lineList.push(new LineSegment("right", mousePos.x, mousePos.y));
-	// console.log("Pushing: " + mousePos.x + " " + mousePos.y);
 }
 
 function drawVerticalLines(event) {
 	var mousePos = getMousePos(canvas, event);
 	lineList.push(new LineSegment("up", mousePos.x, mousePos.y));
 	lineList.push(new LineSegment("down", mousePos.x, mousePos.y));
-	// console.log("Pushing: " + mousePos.x + " " + mousePos.y);
 }
 
 canvas.onmousedown=function(event){
