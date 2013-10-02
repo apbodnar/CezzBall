@@ -12,6 +12,7 @@ var start = new Date().getTime();
 var lastTime = 0;
 var level=1;
 var lives = level;
+var freedom = 100.0;
 
 // We used the following window.requestAnimFrame function which we got from:
 //http://www.html5canvastutorials.com/advanced/html5-canvas-animation-stage/
@@ -37,8 +38,9 @@ function checkFreedom(){
 	for(var i=0; i< ballList.length; i++){
 		range += (ballList[i].xrange+ballList[i].yrange);
 	}
-	console.log((range/level)/(canvas.width+canvas.height));
-	if((range/level)/(canvas.width+canvas.height) <= 0.2){
+	//console.log((range/level)/(canvas.width+canvas.height));
+	freedom = (range/level)/(canvas.width+canvas.height);
+	if(freedom <= 0.2){
 		nextLevel();
 	}
 	
@@ -47,7 +49,7 @@ function checkFreedom(){
 function animate() {
 	//var time = (new Date()).getTime() - startTime;
 	if (lives <= 0){
-		initField();
+		newGame();
 	}
 	var dt = getdt();
 
@@ -81,6 +83,7 @@ function drawField(){
 	ctx.font="15px Georgia"
 	ctx.fillText("Level: " + level,10,30);
 	ctx.fillText("Lives: " + lives,10,50);
+	ctx.fillText("Freedom: " + Math.ceil(freedom*100) + "%",10,70);
 }
 
 function Ball(){
@@ -93,12 +96,16 @@ function Ball(){
 	this.yrange = canvas.height;
 	this.prevx = this.px;
 	this.prevy = this.py;
+	this.xbounces = 0;
+	this.ybounces = 0;
 	
 	this.calcRangex = function(){
 		this.xrange = Math.abs(this.prevx - this.px);
+		console.log(this.xrange)
 	}
 	this.calcRangey = function(){
 		this.yrange = Math.abs(this.prevy - this.py);
+		console.log(this.yrange)
 	}
 	
 	this.handleCollision = function(dt, wall){
@@ -106,15 +113,19 @@ function Ball(){
 			this.py < Math.max(wall.py0,wall.py1) && this.py > Math.min(wall.py0,wall.py1)){
 			this.vx*=-1.0;//return [-1,1];
 			this.px += this.vx*dt;
-			this.prevy = this.py;
-			this.calcRangey();
+			this.xbounces++;
+			this.xbounces > 1 && this.calcRangex();
+			this.prevx = this.px;
+
 		}
 		else if((Math.abs(this.py - wall.py0) <= this.radius && Math.abs(this.py - wall.py1) <= this.radius) &&
 			this.px < Math.max(wall.px0,wall.px1) && this.px > Math.min(wall.px0,wall.px1)){
 			this.vy*=-1.0;//return [1,-1];
 			this.py += this.vy*dt;
-			this.prevx = this.px;
-			this.calcRangex();
+			this.ybounces++;
+			this.ybounces > 1 && this.calcRangey();
+			this.prevy = this.py;
+			
 		}
 	}
 	
@@ -389,6 +400,7 @@ function initBoundary(){
 function initField(){
 	ballList = [];
 	wallList =[];
+	lineList = [];
 	ballList.push(new Ball());
 	initBoundary()
 }
@@ -396,10 +408,17 @@ function initField(){
 function nextLevel(){
 	level++;
 	lives= level;
-	initBoundary();
+	initField();
 	for(var i=1; i<level; i++){
 		ballList.push(new Ball());
 	}
+}
+
+function newGame(){
+	level=1;
+	lives = level;
+	freedom = 100.0;
+	initField();
 }
 
 function getMousePos(canvas, evt) {	
