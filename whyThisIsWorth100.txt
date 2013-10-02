@@ -1,5 +1,0 @@
-Hunter Lang
-Adam Bodnar
-Timm Nygren
-
-The CSS3 features we used were animation for our game title Cezz Ball, transitions to make the accordian menu for the tips, and some form of text shadows for text effects. The game was a bear to implement.
