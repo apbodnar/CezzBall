@@ -11,6 +11,7 @@ var sectorList = [];
 var lineList = [];
 var start = new Date().getTime();
 var lastTime = 0;
+var level=1;
 
 window.requestAnimFrame = (function(callback) {
 	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
@@ -198,28 +199,28 @@ function lineCollidesWithWall(segment) {
 		switch (segment.drawingDirection) {
 			case "up":
 				temp = segment.basey - segment.length;
-				if(Math.abs(temp - wallList[i].py0) <= allowance && (Math.abs(temp - wallList[i].py1) <= allowance) &&
+				if(Math.abs(temp - wall.py0) <= allowance && (Math.abs(temp - wall.py1) <= allowance) &&
 					segment.basex < Math.max(wall.px0,wall.px1) && segment.basex > Math.min(wall.px0,wall.px1)){
 					return true;
 				}
 				break;
 			case "right":
 				temp = segment.basex + segment.length;
-				if(Math.abs(temp - wallList[i].px0) <= allowance && (Math.abs(temp - wallList[i].px1) <= allowance) &&
+				if(Math.abs(temp - wall.px0) <= allowance && (Math.abs(temp - wall.px1) <= allowance) &&
 					segment.basey < Math.max(wall.py0,wall.py1) && segment.basey > Math.min(wall.py0,wall.py1)){
 					return true;
 				}
 				break;
 			case "down":
 				temp = segment.basey + segment.length;
-				if(Math.abs(temp - wallList[i].py0) <= allowance && (Math.abs(temp - wallList[i].py1) <= allowance) &&
+				if(Math.abs(temp - wall.py0) <= allowance && (Math.abs(temp - wall.py1) <= allowance) &&
 					segment.basex < Math.max(wall.px0,wall.px1) && segment.basex > Math.min(wall.px0,wall.px1)){
 					return true;
 				}
 				break;
 			case "left":
 				temp = segment.basex - segment.length;
-				if(Math.abs(temp - wallList[i].px0) <= allowance && (Math.abs(temp - wallList[i].px1) <= allowance) &&
+				if(Math.abs(temp - wall.px0) <= allowance && (Math.abs(temp - wall.px1) <= allowance) &&
 					segment.basey < Math.max(wall.py0,wall.py1) && segment.basey > Math.min(wall.py0,wall.py1)){
 					return true;
 				}
@@ -366,8 +367,15 @@ function initBoundary(){
 }
 
 function initField(){
-	ballList.push(new Ball());
 	initBoundary()
+}
+
+function newLevel(){
+	level++;
+	ballList = [];
+	for(var i=0; i<level; i++){
+		ballList.push(new Ball());
+	}
 }
 
 function getMousePos(canvas, evt) {
