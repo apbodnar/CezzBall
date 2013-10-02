@@ -367,6 +367,7 @@ function initBoundary(){
 }
 
 function initField(){
+	ballList.push(new Ball());
 	initBoundary()
 }
 
@@ -378,7 +379,7 @@ function newLevel(){
 	}
 }
 
-function getMousePos(canvas, evt) {
+function getMousePos(canvas, evt) {	
 	var rect = canvas.getBoundingClientRect();
 	return {
 		x: evt.clientX - rect.left,
