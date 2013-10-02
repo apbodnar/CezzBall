@@ -9,9 +9,9 @@
 	<h2><span id="Cezz">Cezz</span> <span id="Ball">Ball</span></h2>
 	<div id="instructionsRight">
 		<h3 id="counterClock">Objective</h3>
-		<p>The object of Cezz ball is to clear as much of the level as you can. To clear the area you must draw horizontal or vertical lines.</p> 
+		<p>The object of Cezz ball is to confine the balls into tiniest space possible. To enclose the balls you must draw horizontal or vertical lines.</p> 
 		<p><span id="caution">CAUTION</span>: If a ball hits either line while they are being drawn, the line disappears and you lose a life! The line completes when it reaches a wall.</p>
-		<p>Lines that finish drawing without getting hit will do one of two things; It will close off an area of the board that does not have any balls in that region, or it will just divide that area, leaving whatever balls are left trapped to continue bouncing.</p>
+		<p>Lines that finish drawing without getting hit willleave the balls trapped in a smaller space to continue bouncing. The freedom of the ball must reach at least 20% or lower to win. Freedom is the amount of space the ball can traverse. The less space, the less freedom!</p>
 	</div>
 	<div id="instructionsLeft">
 		<h3 id="clock">Game rules</h3>
@@ -22,14 +22,14 @@
 			<input id="accordian" name="accordian" type="checkbox" />
 			<label for="accordian">Click for Tips</label>
 			<div class="accordianDrop">
-				<p>Trapping balls in areas allows you to deal with fewer balls in a larger area. </p>
+				<p>Trapping one or two balls in a smaller area allows you to deal with fewer balls in a larger area. </p>
 			</div>
 		</section>
 	</div>
 	<div id="canvas">
 		<canvas id="myCanvas" style="border: solid; color: black; border-width: 1px;" oncontextmenu="return false;"></canvas><br>
 	</div>
-	<div class="centerit"><button type="button" onclick="startGame();">Play!</button></div>
+	<div class="centerit"><button id="startButton" type="button" onclick="startGame();">Play!</button></div>
 	<script type="text/javascript" src="cezzball.js"></script>
 </body>
 </html>

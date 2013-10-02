@@ -190,7 +190,7 @@ section.accordianVertical div.accordianDrop p {
 }
 
 section.accordianVertical input:checked ~ div.accordianDrop {
-	height: 85px;
+	height: 100px;
 	-webkit-transition:all 0.5s ease-in-out;
 	-moz-transition:all 0.5s ease-in-out;
 	-o-transition:all 0.5s ease-in-out;

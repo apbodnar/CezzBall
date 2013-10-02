@@ -388,11 +388,12 @@ function initBoundary(){
 }
 
 function initField(){
+	document.getElementById("startButton").disabled = true;
 	ballList = [];
 	wallList =[];
 	lineList = [];
 	ballList.push(new Ball());
-	initBoundary()
+	initBoundary();
 }
 
 function nextLevel(){
