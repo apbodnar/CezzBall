@@ -7,12 +7,14 @@ canvas.height = 500;
 var level = 1;
 var ballList = [];
 var wallList = [];
-var sectorList = [];
 var lineList = [];
 var start = new Date().getTime();
 var lastTime = 0;
 var level=1;
+var lives = level;
 
+// We used the following window.requestAnimFrame function which we got from:
+//http://www.html5canvastutorials.com/advanced/html5-canvas-animation-stage/
 window.requestAnimFrame = (function(callback) {
 	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
 	function(callback) {
@@ -30,8 +32,23 @@ function getdt(){
 	return dt
 }
 
+function checkFreedom(){
+	range = 0;
+	for(var i=0; i< ballList.length; i++){
+		range += (ballList[i].xrange+ballList[i].yrange);
+	}
+	console.log((range/level)/(canvas.width+canvas.height));
+	if((range/level)/(canvas.width+canvas.height) <= 0.2){
+		nextLevel();
+	}
+	
+}
+
 function animate() {
 	//var time = (new Date()).getTime() - startTime;
+	if (lives <= 0){
+		initField();
+	}
 	var dt = getdt();
 
 	for(var i=0; i< ballList.length; i++){
@@ -40,7 +57,9 @@ function animate() {
 	for(var i=0;i < lineList.length; i++) {
 		lineList[i].update(dt);
 	}
+	
 	drawField();
+	checkFreedom();
 	requestAnimFrame(function(){
 		animate();
 	});
@@ -58,6 +77,10 @@ function drawField(){
 	for(var i=0;i < wallList.length; i++) {
 		wallList[i].draw();
 	}
+	ctx.fillStyle = "black"
+	ctx.font="15px Georgia"
+	ctx.fillText("Level: " + level,10,30);
+	ctx.fillText("Lives: " + lives,10,50);
 }
 
 function Ball(){
@@ -66,26 +89,36 @@ function Ball(){
 	this.py = canvas.height * Math.random();
 	this.vx = Math.random() < 0.5 ? -1.0 : 1.0;
 	this.vy = Math.random() < 0.5 ? -1.0 : 1.0;
+	this.xrange = canvas.width;
+	this.yrange = canvas.height;
+	this.prevx = this.px;
+	this.prevy = this.py;
+	
+	this.calcRangex = function(){
+		this.xrange = Math.abs(this.prevx - this.px);
+	}
+	this.calcRangey = function(){
+		this.yrange = Math.abs(this.prevy - this.py);
+	}
 	
 	this.handleCollision = function(dt, wall){
 		if((Math.abs(this.px - wall.px0) <= this.radius && Math.abs(this.px - wall.px1) <= this.radius) &&
 			this.py < Math.max(wall.py0,wall.py1) && this.py > Math.min(wall.py0,wall.py1)){
 			this.vx*=-1.0;//return [-1,1];
 			this.px += this.vx*dt;
+			this.prevy = this.py;
+			this.calcRangey();
 		}
 		else if((Math.abs(this.py - wall.py0) <= this.radius && Math.abs(this.py - wall.py1) <= this.radius) &&
 			this.px < Math.max(wall.px0,wall.px1) && this.px > Math.min(wall.px0,wall.px1)){
 			this.vy*=-1.0;//return [1,-1];
 			this.py += this.vy*dt;
+			this.prevx = this.px;
+			this.calcRangex();
 		}
 	}
 	
 	this.checkCollision = function(dt){
-		for(var i=0; i< sectorList.length; i++){
-			for(var j=0; j< sectorList[i].wallList.length; j++){
-				this.handleCollision(dt, sectorList[i].wallList[j]);
-			}
-		}
 		for(var j=0; j< wallList.length; j++){
 			this.handleCollision(dt, wallList[j]);
 		}
@@ -171,29 +204,6 @@ function lineCollidesWithWall(segment) {
 		// console.log("x + len: " + (segment.x + length) + " x - len: " + (segment - x) + " y + len: " + (segment) + " y: " + 2*segment.y);
 		// If line is outside canvas, stop it
 		temp = 0;
-		/*
-		switch (segment.drawingDirection) {
-			case "up":
-				temp = segment.basey - segment.length;
-				return temp < 0;
-				break;
-			case "right":
-				temp = segment.basex + segment.length;
-				return temp >= canvas.width;
-				break;
-			case "down":
-				temp = segment.basey + segment.length;
-				return temp >= canvas.height;
-				break;
-			case "left":
-				temp = segment.basex - segment.length;
-				return temp < 0;
-				break;
-		} 
-		if((Math.abs(this.px - wall.px0) <= this.radius && Math.abs(this.px - wall.px1) <= this.radius) &&
-			this.py < Math.max(wall.py0,wall.py1) && this.py > Math.min(wall.py0,wall.py1)){
-		}
-		*/
 		var allowance = 2;
 		var wall = wallList[i];
 		switch (segment.drawingDirection) {
@@ -232,27 +242,41 @@ function lineCollidesWithWall(segment) {
 
 function ballCollidesWithLine(segment) {
 	var fuzzyDistanceFromBase = 10; //px
-	for (var i=0; i < wallList.length; i++) {
+	for (var i=0; i < ballList.length; i++) {
 		switch (segment.drawingDirection) {
 			//Math.abs(ballList[i].px - sectorList[i].wallList[j].px1) <= ballList[i].radius
 			case "up":
-				return (Math.abs(ballList[i].px - segment.basex) <= ballList[i].radius &&
-					(ballList[i].py < segment.basey && ballList[i].py > (segment.basey - segment.length)))
+				if((Math.abs(ballList[i].px - segment.basex) <= ballList[i].radius &&
+					(ballList[i].py < segment.basey && ballList[i].py > (segment.basey - segment.length)))){
+						lives--;
+						return true;
+					}
 				break;
 			case "right":
-				return (Math.abs(ballList[i].py - segment.basey) <= ballList[i].radius &&
-					(ballList[i].px > segment.basex && ballList[i].px < (segment.basex + segment.length)))
+				if((Math.abs(ballList[i].py - segment.basey) <= ballList[i].radius &&
+					(ballList[i].px > segment.basex && ballList[i].px < (segment.basex + segment.length)))){
+						lives--;
+						return true;
+					}
 				break;
 			case "down":
-				return (Math.abs(ballList[i].px - segment.basex) <= ballList[i].radius &&
-					(ballList[i].py > segment.basey && ballList[i].py < (segment.basey + segment.length)))
+				if((Math.abs(ballList[i].px - segment.basex) <= ballList[i].radius &&
+					(ballList[i].py > segment.basey && ballList[i].py < (segment.basey + segment.length)))){
+						lives--;
+						return true;
+					}
 				break;
 			case "left":
-				return (Math.abs(ballList[i].py - segment.basey) <= ballList[i].radius &&
-					(ballList[i].px < segment.basex && ballList[i].px > (segment.basex - segment.length)))
+				if((Math.abs(ballList[i].py - segment.basey) <= ballList[i].radius &&
+					(ballList[i].px < segment.basex && ballList[i].px > (segment.basex - segment.length)))){
+						lives--;
+						return true;
+					}
 				break;
+				
 		}
 	};
+	return false;
 }
 // Converts a line to a wall, adds that to the wall list
 function convertLineToWall(segment) {
@@ -324,6 +348,7 @@ function Wall(px0,py0,px1,py1){
 	
 	this.draw = function(){
 		ctx.save();
+			ctx.lineWidth = 3;
 			ctx.beginPath();
 			ctx.strokeSytle = 'black';
 			ctx.moveTo(px0,py0);
@@ -353,11 +378,6 @@ function SectorList(){
 }
 
 function initBoundary(){
-	sectorList.push(new Sector());
-	sectorList[0].wallList.push(new Wall(0,0,canvas.width,0));
-	sectorList[0].wallList.push(new Wall(0,0,0,canvas.height));
-	sectorList[0].wallList.push(new Wall(canvas.width,canvas.height,0,canvas.height));
-	sectorList[0].wallList.push(new Wall(canvas.width,canvas.height,canvas.width,0));
 
 	// Push the boundaries onto the wallList
 	wallList.push(new Wall(0,0,canvas.width,0));
@@ -367,14 +387,17 @@ function initBoundary(){
 }
 
 function initField(){
+	ballList = [];
+	wallList =[];
 	ballList.push(new Ball());
 	initBoundary()
 }
 
-function newLevel(){
+function nextLevel(){
 	level++;
-	ballList = [];
-	for(var i=0; i<level; i++){
+	lives= level;
+	initBoundary();
+	for(var i=1; i<level; i++){
 		ballList.push(new Ball());
 	}
 }
